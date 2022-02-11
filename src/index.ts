@@ -5,6 +5,18 @@ import PrometheusHelperClass from './prometheus.helper.class';
 const gw2 = new GuildWars2Helper();
 const prom = new PrometheusHelperClass();
 
+const port =
+  process.env.port && !isNaN(parseInt(process.env.port))
+    ? parseInt(process.env.port)
+    : 8080;
+
+const tradingPostIds = process.env.tradingpost_ids
+  ?.split(',')
+  .filter(id => !isNaN(parseInt(id.trim())))
+  .map(id => parseInt(id.trim()));
+
+const apiKey = process.env.gw2_api_key;
+
 const gw2_coin_to_gem_value = async () => {
   const promVal = await gw2.coinToGemValue;
 
@@ -60,14 +72,13 @@ const gw2_trade_prices = async (id: number) => {
 /**
  * Set up metric tasks
  */
-const tradingPostIds = [19976, 89133];
 const metricTasks = [{func: gw2_coin_to_gem_value}, {func: gw2_exchange_rate}];
 
 /**
  * Set up server
  */
 const server = http.createServer();
-server.listen(8080);
+server.listen(port);
 
 server.on('request', async (req, res) => {
   if (req.url !== '/metrics') {
@@ -78,10 +89,14 @@ server.on('request', async (req, res) => {
 
   prom.metricReport = '';
 
+  console.log(apiKey);
+
   try {
     await Promise.all([
       ...metricTasks.map(prom => prom.func()),
-      ...tradingPostIds.map(id => gw2_trade_prices(id)),
+      ...(!!tradingPostIds
+        ? tradingPostIds.map(id => gw2_trade_prices(id))
+        : []),
     ]);
     res.writeHead(200);
     res.end(`${prom.metricReport}`);
