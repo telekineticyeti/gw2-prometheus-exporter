@@ -18,7 +18,7 @@ gem_exchange_count=400 # The number of gems to be considered for the coin to gem
 
 Once deployed using your preferred method below, metrics are accessed on the host machine's port 8080 via `/metrics` subpath. E.g: http://localhost:8080/metrics
 
-Example output with `tradingpost_ids` environment variable set to `19976,24502`:
+Example output with `tradingpost_ids` environment variable set to `19976,89133,24502,91793,91869`:
 
 ```txt
 # HELP gw2_coin_to_gem_value The amount of copper coins required to purchase a single gem.
@@ -27,14 +27,20 @@ gw2_coin_to_gem_value 2832
 # HELP gw2_exchange_rate The current exchange rate in gold coins for 400 gems.
 # Type gw2_exchange_rate gauge
 gw2_exchange_rate 113
-gw2_trading_post_buy_price{name="Mystic Coin"} 1.69e+0
-gw2_trading_post_sell_price{name="Mystic Coin"} 1.76e+0
-gw2_trading_post_buy_quantity{name="Mystic Coin"} 2.879272e+6
-gw2_trading_post_sell_quantity{name="Mystic Coin"} 5.6064e+4
-gw2_trading_post_buy_price{name="Silver Doubloon"} 8.3e-1
-gw2_trading_post_sell_price{name="Silver Doubloon"} 8.9e-1
-gw2_trading_post_buy_quantity{name="Silver Doubloon"} 8.887e+3
-gw2_trading_post_sell_quantity{name="Silver Doubloon"} 1.1349e+4
+# HELP gw2_trading_post_buy_quantity Trading post buys quantity for items (demand)
+# Type gw2_trading_post_buy_quantity gauge
+gw2_trading_post_buy_quantity{name="Mystic Coin"} 2.883767e+6
+gw2_trading_post_buy_quantity{name="Mystic Mote"} 2.683e+3
+gw2_trading_post_buy_quantity{name="Silver Doubloon"} 8.84e+3
+gw2_trading_post_buy_quantity{name="Cultivated Mint Leaf"} 5.746e+3
+gw2_trading_post_buy_quantity{name="Cultivated Peppercorn"} 9.14e+3
+# HELP gw2_trading_post_buy_quantity Trading post sells quantity for items (supply)
+# Type gw2_trading_post_buy_quantity gauge
+gw2_trading_post_buy_quantity{name="Mystic Coin"} 4.7061e+4
+gw2_trading_post_buy_quantity{name="Mystic Mote"} 4.675e+3
+gw2_trading_post_buy_quantity{name="Silver Doubloon"} 1.0769e+4
+gw2_trading_post_buy_quantity{name="Cultivated Mint Leaf"} 1.519e+4
+gw2_trading_post_buy_quantity{name="Cultivated Peppercorn"} 1.7415e+4
 ```
 
 ## Build and run with NodeJS

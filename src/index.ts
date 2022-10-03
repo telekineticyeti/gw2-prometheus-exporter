@@ -28,33 +28,57 @@ const gw2_exchange_rate = async () => {
   });
 };
 
-const gw2_trade_prices = async (id: number) => {
-  const name = (await gw2.itemQuery(id)).name;
-  const {buys, sells} = await gw2.tradingPostQuery(id);
+const gw2_trade_prices = async (ids: number[]) => {
+  const data = await gw2.tradingPostQuery(ids);
+  const type = 'gauge';
 
-  prom.logMetric({
-    name: 'gw2_trading_post_buy_price',
-    value: prom.value(
-      `${buys.price.gold}.${buys.price.silver}.${buys.price.copper}`,
-    ),
-    labels: [{name}],
+  let help = 'Trading post buy price for items (demand)';
+  let name = 'gw2_trading_post_buy_price';
+  prom.logMetric({help, type, name});
+  data.forEach(d => {
+    prom.logMetric({
+      name,
+      value: prom.value(
+        `${d.buys.price.gold}.${d.buys.price.silver}.${d.buys.price.copper}`,
+      ),
+      labels: [{name: d.name}],
+    });
   });
-  prom.logMetric({
-    name: 'gw2_trading_post_sell_price',
-    value: prom.value(
-      `${sells.price.gold}.${sells.price.silver}.${sells.price.copper}`,
-    ),
-    labels: [{name}],
+
+  help = 'Trading post sell price for items (supply)';
+  name = 'gw2_trading_post_sell_price';
+  prom.logMetric({help, type, name});
+  data.forEach(d => {
+    prom.logMetric({
+      name,
+      value: prom.value(
+        `${d.sells.price.gold}.${d.sells.price.silver}.${d.sells.price.copper}`,
+      ),
+      labels: [{name: d.name}],
+    });
   });
-  prom.logMetric({
-    name: 'gw2_trading_post_buy_quantity',
-    value: prom.value(`${buys.quantity}`),
-    labels: [{name}],
+
+  help = 'Trading post buys quantity for items (demand)';
+  name = 'gw2_trading_post_buy_quantity';
+  prom.logMetric({help, type, name});
+  data.forEach(d => {
+    prom.logMetric({
+      name,
+      value: prom.value(`${d.buys.quantity}`),
+
+      labels: [{name: d.name}],
+    });
   });
-  prom.logMetric({
-    name: 'gw2_trading_post_sell_quantity',
-    value: prom.value(`${sells.quantity}`),
-    labels: [{name}],
+
+  help = 'Trading post sells quantity for items (supply)';
+  name = 'gw2_trading_post_sell_quantity';
+  prom.logMetric({help, type, name});
+  data.forEach(d => {
+    prom.logMetric({
+      name,
+      value: prom.value(`${d.sells.quantity}`),
+      labels: [{name: d.name}],
+    });
   });
 };
 
@@ -82,7 +106,7 @@ server.on('request', async (req, res) => {
     await Promise.all([
       ...metricTasks.map(prom => prom.func()),
       ...(!!config.tradingPostIds
-        ? config.tradingPostIds.map(id => gw2_trade_prices(id))
+        ? [gw2_trade_prices(config.tradingPostIds)]
         : []),
     ]);
     res.writeHead(200);

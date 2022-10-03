@@ -40,6 +40,37 @@ declare namespace gw2 {
     icon: string;
   }
 
+  interface APIAccount {
+    id: string;
+    name: string;
+    age: number;
+    world: number;
+    guilds: string[];
+    guild_leader: [];
+    created: string;
+    access: string[];
+    commander: boolean;
+    fractal_level: number;
+    daily_ap: number;
+    monthly_ap: number;
+    wvw_rank: number;
+  }
+
+  interface APICharacter {
+    name: string;
+    race: string;
+    gender: string;
+    flags: unknown[];
+    profession: string;
+    level: number;
+    guild: string;
+    age: number;
+    created: string;
+    deaths: number;
+    title: number;
+    backstory: string[];
+  }
+
   type ItemFlags = 'NoSalvage' | 'NoSell';
 
   type ItemGameTypes = 'Activity' | 'Wvw' | 'Dungeon' | 'Pve';
@@ -55,6 +86,7 @@ declare namespace gw2 {
   }
 
   interface TradingPostItem {
+    name: string;
     buys: {
       quantity: number;
       price: FriendlyCoinQuantity;

@@ -1,11 +1,13 @@
 import fetch from 'node-fetch';
 
-enum gw2ApiUrls {
+enum urls {
   dailyAchievements = 'https://api.guildwars2.com/v2/achievements/daily',
   exchangeRateCoins = 'https://api.guildwars2.com/v2/commerce/exchange/coins',
   exchangeRateGems = 'https://api.guildwars2.com/v2/commerce/exchange/gems',
   tradingPost = 'https://api.guildwars2.com/v2/commerce/prices',
   items = 'https://api.guildwars2.com/v2/items',
+  account = 'https://api.guildwars2.com/v2/account',
+  characters = 'https://api.guildwars2.com/v2/characters',
 }
 
 class GuildWars2Helper {
@@ -13,9 +15,7 @@ class GuildWars2Helper {
   get coinToGemValue(): Promise<number> {
     return (async () => {
       try {
-        const res = await fetch(
-          `${gw2ApiUrls.exchangeRateCoins}?quantity=1000000`,
-        );
+        const res = await fetch(`${urls.exchangeRateCoins}?quantity=1000000`);
         const json = await res.json();
         // const json: gw2.APIExchangeRateCoins = await res.json();
         return (json as gw2.APIExchangeRateCoins).coins_per_gem;
@@ -53,21 +53,31 @@ class GuildWars2Helper {
     return {gold, silver, copper};
   }
 
-  public async tradingPostQuery(id: number): Promise<gw2.TradingPostItem> {
+  /**
+   *
+   * @param ids ID numbers of items to query
+   * @returns Promise gw2.TradingPostItem[]
+   */
+  public async tradingPostQuery(ids: number[]): Promise<gw2.TradingPostItem[]> {
     try {
-      const res = await fetch(`${gw2ApiUrls.tradingPost}/${id}`);
-      const json: gw2.APITradingPostPrices = await res.json();
-      // return (json as gw2.TradingPostItem).coins_per_gem;
-      return {
+      // Resolve item Names
+      const namesRes = await fetch(`${urls.items}?ids=${ids.join(',')}`);
+      const namesJson: gw2.APIItem[] = await namesRes.json();
+      // Resolve item Trading Post details
+      const tradesRes = await fetch(`${urls.tradingPost}?ids=${ids.join(',')}`);
+      const tradesJson: gw2.APITradingPostPrices[] = await tradesRes.json();
+
+      return tradesJson.map((tj, idx) => ({
+        name: namesJson[idx].name,
         buys: {
-          quantity: json.buys.quantity,
-          price: this.friendlyCoinValue(json.buys.unit_price),
+          quantity: tj.buys.quantity,
+          price: this.friendlyCoinValue(tj.buys.unit_price),
         },
         sells: {
-          quantity: json.sells.quantity,
-          price: this.friendlyCoinValue(json.sells.unit_price),
+          quantity: tj.sells.quantity,
+          price: this.friendlyCoinValue(tj.sells.unit_price),
         },
-      };
+      }));
     } catch (error) {
       throw new Error();
     }
@@ -75,8 +85,40 @@ class GuildWars2Helper {
 
   public async itemQuery(id: number): Promise<gw2.APIItem> {
     try {
-      const res = await fetch(`${gw2ApiUrls.items}/${id}`);
+      const res = await fetch(`${urls.items}/${id}`);
       return (await res.json()) as gw2.APIItem;
+    } catch (error) {
+      throw new Error();
+    }
+  }
+
+  public async accountQuery(key: string): Promise<gw2.APIAccount> {
+    try {
+      const res = await fetch(`${urls.account}?access_token=${key}`);
+      return await res.json();
+    } catch (error) {
+      throw new Error();
+    }
+  }
+
+  public async characterList(key: string): Promise<string[]> {
+    try {
+      const res = await fetch(`${urls.characters}?access_token=${key}`);
+      return await res.json();
+    } catch (error) {
+      throw new Error();
+    }
+  }
+
+  public async character(
+    key: string,
+    character: string,
+  ): Promise<gw2.APICharacter> {
+    try {
+      const res = await fetch(
+        `${urls.characters}/${character}?access_token=${key}`,
+      );
+      return await res.json();
     } catch (error) {
       throw new Error();
     }

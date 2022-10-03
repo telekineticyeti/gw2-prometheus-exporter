@@ -14,7 +14,9 @@ class PrometheusHelperClass {
       ? `{${metric.labels.map(l => this.labelStringFromObject(l))}}`
       : '';
 
-    this.addLine(`${metric.name}${labels} ${metric.value}`);
+    if (metric.value) {
+      this.addLine(`${metric.name}${labels} ${metric.value}`);
+    }
   }
 
   public value(val: string): string {
@@ -39,5 +41,5 @@ interface IMetricModel {
   help?: string;
   type?: 'gauge' | 'counter' | 'summary';
   labels?: {[name: string]: string}[];
-  value: string | number;
+  value?: string | number;
 }

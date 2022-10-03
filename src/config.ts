@@ -3,7 +3,10 @@ const port =
     ? parseInt(process.env.port)
     : 8080;
 
-const apiKey = process.env.gw2_api_key;
+const apiKeys = process.env.gw2_api_key
+  ?.split(',')
+  .filter(k => k.trim() !== '')
+  .map(k => k.trim());
 
 const tradingPostIds = process.env.tradingpost_ids
   ?.split(',')
@@ -12,7 +15,7 @@ const tradingPostIds = process.env.tradingpost_ids
 
 const config = {
   port,
-  apiKey,
+  apiKeys,
   tradingPostIds,
 };
 
