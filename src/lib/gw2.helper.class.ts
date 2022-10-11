@@ -48,7 +48,7 @@ class GuildWars2Helper {
    */
   public friendlyCoinValue(coins: number): gw2.FriendlyCoinQuantity {
     const gold = Math.trunc(coins / 10000);
-    const silver = Math.trunc((coins % 10000) / 100);
+    const silver = parseInt(Math.trunc((coins % 10000) / 100).toString().padStart(4, '0'));
     const copper = coins % 100;
     return {gold, silver, copper};
   }
@@ -72,10 +72,12 @@ class GuildWars2Helper {
         buys: {
           quantity: tj.buys.quantity,
           price: this.friendlyCoinValue(tj.buys.unit_price),
+          coin: tj.buys.unit_price,
         },
         sells: {
           quantity: tj.sells.quantity,
           price: this.friendlyCoinValue(tj.sells.unit_price),
+          coin: tj.sells.unit_price
         },
       }));
     } catch (error) {

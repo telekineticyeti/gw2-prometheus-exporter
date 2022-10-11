@@ -90,10 +90,12 @@ declare namespace gw2 {
     buys: {
       quantity: number;
       price: FriendlyCoinQuantity;
+      coin: number;
     };
     sells: {
       quantity: number;
       price: FriendlyCoinQuantity;
+      coin: number;
     };
   }
 }

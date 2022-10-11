@@ -39,7 +39,7 @@ const gw2_trade_prices = async (ids: number[]) => {
     prom.logMetric({
       name,
       value: prom.value(
-        `${d.buys.price.gold}.${d.buys.price.silver}.${d.buys.price.copper}`,
+        `${d.buys.price.gold}.${d.buys.price.silver}${d.buys.price.copper}`,
       ),
       labels: [{name: d.name}],
     });
@@ -52,8 +52,30 @@ const gw2_trade_prices = async (ids: number[]) => {
     prom.logMetric({
       name,
       value: prom.value(
-        `${d.sells.price.gold}.${d.sells.price.silver}.${d.sells.price.copper}`,
+        `${d.sells.price.gold}.${d.sells.price.silver}${d.sells.price.copper}`,
       ),
+      labels: [{name: d.name}],
+    });
+  });
+
+  help = 'Trading post buy price for items (demand)';
+  name = 'gw2_trading_post_buy_price_coin';
+  prom.logMetric({help, type, name});
+  data.forEach(d => {
+    prom.logMetric({
+      name,
+      value: prom.value(`${d.buys.coin}`),
+      labels: [{name: d.name}],
+    });
+  });
+
+  help = 'Trading post sell price for items (supply)';
+  name = 'gw2_trading_post_sell_price_coin';
+  prom.logMetric({help, type, name});
+  data.forEach(d => {
+    prom.logMetric({
+      name,
+      value: prom.value(`${d.sells.coin}`),
       labels: [{name: d.name}],
     });
   });
@@ -92,6 +114,8 @@ const metricTasks = [{func: gw2_coin_to_gem_value}, {func: gw2_exchange_rate}];
  */
 const server = http.createServer();
 server.listen(config.port);
+
+console.log('Server started', `http://localhost:${config.port}/metrics`)
 
 server.on('request', async (req, res) => {
   if (req.url !== '/metrics') {

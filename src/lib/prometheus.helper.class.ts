@@ -20,7 +20,8 @@ class PrometheusHelperClass {
   }
 
   public value(val: string): string {
-    return parseFloat(val).toExponential();
+    // return parseFloat(val).toExponential();
+    return val;
   }
 
   private addLine(str: string): void {
