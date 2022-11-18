@@ -1,13 +1,13 @@
 import * as http from 'http';
-import GuildWars2Helper from './lib/gw2.helper.class';
+import GuildWars2ApiHelper from 'gw2-api-helper';
 import PrometheusHelperClass from './lib/prometheus.helper.class';
 import config from './config';
 
-const gw2 = new GuildWars2Helper();
+const gw2Helper = new GuildWars2ApiHelper();
 const prom = new PrometheusHelperClass();
 
 const gw2_coin_to_gem_value = async () => {
-  const promVal = await gw2.coinToGemValue;
+  const promVal = await gw2Helper.coinToGemValue;
 
   prom.logMetric({
     name: 'gw2_coin_to_gem_value',
@@ -18,7 +18,7 @@ const gw2_coin_to_gem_value = async () => {
 };
 
 const gw2_exchange_rate = async () => {
-  const promVal = await gw2.getExchangeRateGems();
+  const promVal = await gw2Helper.getExchangeRateGems();
 
   prom.logMetric({
     name: 'gw2_exchange_rate',
@@ -29,77 +29,77 @@ const gw2_exchange_rate = async () => {
 };
 
 const gw2_trade_prices = async (ids: number[]) => {
-  const data = await gw2.tradingPostQuery(ids);
+  const data = await gw2Helper.tradingPostQuery(ids);
   const type = 'gauge';
 
   let help = 'Trading post buy price for items (demand)';
   let name = 'gw2_trading_post_buy_price';
-  prom.logMetric({help, type, name});
+  prom.logMetric({ help, type, name });
   data.forEach(d => {
     prom.logMetric({
       name,
       value: prom.value(
         `${d.buys.price.gold}.${d.buys.price.silver}${d.buys.price.copper}`,
       ),
-      labels: [{name: d.name}],
+      labels: [{ name: d.name }],
     });
   });
 
   help = 'Trading post sell price for items (supply)';
   name = 'gw2_trading_post_sell_price';
-  prom.logMetric({help, type, name});
+  prom.logMetric({ help, type, name });
   data.forEach(d => {
     prom.logMetric({
       name,
       value: prom.value(
         `${d.sells.price.gold}.${d.sells.price.silver}${d.sells.price.copper}`,
       ),
-      labels: [{name: d.name}],
+      labels: [{ name: d.name }],
     });
   });
 
   help = 'Trading post buy price for items (demand)';
   name = 'gw2_trading_post_buy_price_coin';
-  prom.logMetric({help, type, name});
+  prom.logMetric({ help, type, name });
   data.forEach(d => {
     prom.logMetric({
       name,
       value: prom.value(`${d.buys.coin}`),
-      labels: [{name: d.name}],
+      labels: [{ name: d.name }],
     });
   });
 
   help = 'Trading post sell price for items (supply)';
   name = 'gw2_trading_post_sell_price_coin';
-  prom.logMetric({help, type, name});
+  prom.logMetric({ help, type, name });
   data.forEach(d => {
     prom.logMetric({
       name,
       value: prom.value(`${d.sells.coin}`),
-      labels: [{name: d.name}],
+      labels: [{ name: d.name }],
     });
   });
 
   help = 'Trading post buys quantity for items (demand)';
   name = 'gw2_trading_post_buy_quantity';
-  prom.logMetric({help, type, name});
+  prom.logMetric({ help, type, name });
   data.forEach(d => {
     prom.logMetric({
       name,
       value: prom.value(`${d.buys.quantity}`),
 
-      labels: [{name: d.name}],
+      labels: [{ name: d.name }],
     });
   });
 
   help = 'Trading post sells quantity for items (supply)';
   name = 'gw2_trading_post_sell_quantity';
-  prom.logMetric({help, type, name});
+  prom.logMetric({ help, type, name });
   data.forEach(d => {
     prom.logMetric({
       name,
       value: prom.value(`${d.sells.quantity}`),
-      labels: [{name: d.name}],
+      labels: [{ name: d.name }],
     });
   });
 };
@@ -107,7 +107,7 @@ const gw2_trade_prices = async (ids: number[]) => {
 /**
  * Set up metric tasks
  */
-const metricTasks = [{func: gw2_coin_to_gem_value}, {func: gw2_exchange_rate}];
+const metricTasks = [{ func: gw2_coin_to_gem_value }, { func: gw2_exchange_rate }];
 
 /**
  * Set up server
