@@ -12,9 +12,6 @@
   },
   "author": "https://github.com/telekineticyeti",
   "devDependencies": {
-    "@types/http-server": "^0.12.1",
-    "@types/node": "^17.0.16",
-    "@types/node-fetch": "^2.5.7",
     "dotenv": "^16.0.0",
     "gw2-api-helper": "git+https://gitea.poot.pw/paul/gw2-api-helper",
     "node-fetch": "^2.6.7",
@@ -22,5 +19,8 @@
     "ts-node": "^10.8.1",
     "tslib": "^2.3.1",
     "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "@types/node": "^18.11.18"
   }
 }
